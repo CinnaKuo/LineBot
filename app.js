@@ -5,8 +5,9 @@ const express = require('express');
 
 // create LINE SDK config from env variables
 const config = {
-  channelAccessToken: 'zGY9xzBeOLgkSYW551drQMNFQwgs1xgls83nRjgrCwxMnth6ePTCKmq0luGMVwHl6OenNiR3tVRUrWTu6zdaelYDfvijCvvVfTmrQGyO9BkiJE6uL3H2Mh8Nm7xCSxQzn/pxi7CTPkjJED5WpSLoFAdB04t89/1O/w1cDnyilFU=',
-  channelSecret: 'b9572939e57fa5f1f086480c360e8a7d'
+  channelId:process.env.CHANNEL_ID,
+  channelAccessToken:process.env.CHANNEL_ACCESS_TOKEN,
+  channelSecret: process.env.CHANNEL_SECRET
 };
 
 // create LINE SDK client
@@ -23,32 +24,58 @@ app.post('/linewebhook', line.middleware(config), (req, res) => {
     .all(req.body.events.map(handleEvent))
     .then((result) => res.json(result))
     .catch((err) => {
-      console.error(err);
+      var data = JSON.stringify(err);
+      console.error(data);
       res.status(500).end();
     });
 });
 
 // event handler
 function handleEvent(event) {
-    console.log(event);
-  if (event.type == 'message' ) {
-    // create a echoing text message
-  const echo = { type: 'text', text: event.message.text };
+  console.log(event.message);
+  if (event.type == 'message') {
+    switch (event.message.type) {
+      case 'text':
+        if (event.message.text=='位置')
+        {
+          let respondLocation= {
+        type: 'location',
+        title: '實體店位置',
+        address: "10608台北市大安區忠孝東路三段一號",
+        latitude: 25.043212,
+        longitude: 121.538255
+        }
+          return client.replyMessage(event.replyToken,respondLocation );
 
-  // use reply API
-  return client.replyMessage(event.replyToken, echo);
+        }
+        const echo = { type: 'text', text: event.message.text };
+        // use reply API
+        return client.replyMessage(event.replyToken, echo);
+      case 'sticker':
+        let respondSticker= {
+          type: 'sticker',
+          packageId: '11539',
+          stickerId: '52114131'
+      }
+        return client.replyMessage(event.replyToken,respondSticker );
+        
+
+      default:
+        break;
+    }
+
   }
 
-  if (event.type == 'follow' ) {
+  if (event.type == 'follow') {
     // create a echoing text message
-  const echo = { type: 'text', text: '安安你好牙' };
+    const echo = { type: 'text', text: '歡迎加入柏維超土炮法師組' };
 
-  // use reply API
-  return client.replyMessage(event.replyToken, echo);
+    // use reply API
+    return client.replyMessage(event.replyToken, echo);
   }
-  
 
- 
+
+
 }
 
 // listen on port
