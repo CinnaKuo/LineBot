@@ -49,8 +49,6 @@ function handleEvent(event) {
 
         }
         if (event.message.text == '購物') {
- 
-
           let shopping={
             type: 'flex',
             altText: 'ADAM',
@@ -232,7 +230,6 @@ function handleEvent(event) {
             ]
             }
           }
-
           return client.replyMessage(event.replyToken, shopping);
         }
         const echo = { type: 'text', text: event.message.text };
